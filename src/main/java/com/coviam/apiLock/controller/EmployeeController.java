@@ -14,6 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
 @RestController
 @RequestMapping(value = EmployeeApiPath.BASE_PATH)
 public class EmployeeController {
@@ -51,5 +54,15 @@ public class EmployeeController {
             statusDTO = employeeService.updateEmployee(id, emp, LockType.RELEASE);
         }
         return new ResponseEntity<>(statusDTO, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/demo")
+    public ResponseEntity demo() throws InterruptedException {
+        System.out.println("*********************> " + Thread.currentThread().getName());
+        CompletableFuture<List<Employee>> cars1 = employeeService.getAllEmployees();
+        CompletableFuture<List<Employee>> cars2 = employeeService.getAllEmployees();
+        CompletableFuture<List<Employee>> cars3 = employeeService.getAllEmployees();
+        CompletableFuture.allOf(cars1, cars2, cars3).join();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

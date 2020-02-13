@@ -7,12 +7,16 @@ import com.coviam.apiLock.model.Constants;
 import com.coviam.apiLock.repository.EmployeeRepository;
 import com.coviam.apiLock.service.EmployeeCacheableService;
 import com.coviam.apiLock.service.EmployeeService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.*;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -64,5 +68,14 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
         }
 
+    }
+
+    @Async
+    public CompletableFuture<List<Employee>> getAllEmployees() throws InterruptedException {
+        System.out.println("---S-------> " + Thread.currentThread().getName());
+        final List<Employee> emps = employeeRepository.findAll();
+        SECONDS.sleep(7);
+        System.out.println("---E-------> " + Thread.currentThread().getName());
+        return CompletableFuture.completedFuture(emps);
     }
 }
